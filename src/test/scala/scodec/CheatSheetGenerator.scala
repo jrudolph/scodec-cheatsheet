@@ -39,9 +39,9 @@ object CheatSheetGenerator extends App {
   def info[T](metadata: CodecMetadata[T], description: String): CodecInfo[T] =
     CodecInfo(metadata, description, None)
 
-  val primitives = Seq(
-    info(codecs.bits, "All the remaining bits", bin"11010110101"),
-    info(codecs.bytes, "All the remaining bytes", hex"5468697320697320"),
+  val primitives = Seq[CodecInfo[_]](
+    info(codecs.bits, "All the remaining bits", """bin"11010110101""""),
+    info(codecs.bytes, "All the remaining bytes", """hex"5468697320697320""""),
 
     info(codecs.byte, "A single byte", 89: Byte),
 
@@ -106,7 +106,7 @@ object CheatSheetGenerator extends App {
       Column(name, extractor.andThen(str ⇒ s"`$str`"))
 
     val columns = Seq(
-      Column("Name", _.metadata.name),
+      bqColumn("Name", _.metadata.name),
       bqColumn("Element Type", _.metadata.tpeString),
       Column("Description", _.description),
       Column("Min Bits", _.metadata.codec.sizeBound.lowerBound.toString),
