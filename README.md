@@ -1,8 +1,9 @@
 # scodec Cheatsheet
 
 [scodec](http://scodec.org/) comes with a large number of predefined codecs
-and combinators. This list should help to find the right one without much
-effort.
+and combinators.
+
+This list is a work-in-progress overview over the predefined codecs.
 
 ## Primitive Codecs
 
@@ -40,6 +41,11 @@ effort.
 | `vpbcd`   | `Long`       | Variable-length packed decimal longs  | 1        | 9        | `12345678901L`          | `00010010001101000101011001111000100100000001₂` (44 bits) |
 
 ## Combinators
+
+## Contributing
+
+ * Run `sbt "test:run-main scodec.CheatSheetGenerator` to generate the table
+ * Format the markdown using the http://markdowntable.com/
 
 ## License
 
