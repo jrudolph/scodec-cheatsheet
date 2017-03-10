@@ -87,13 +87,13 @@ object CheatSheetGenerator extends App {
     info(codecs.bool, "1-bit boolean", true),
 
     info(codecs.ascii, "`US-ASCII` String consuming remaining input", "The lazy dog"),
-    info(codecs.utf8, "`UTF8` String consuming remaining input", "The lazy dog"),
+    info(codecs.utf8, "`UTF8` String consuming remaining input", "árvíztűrő ütvefúrógép"),
     info(codecs.cstring, "Null-terminated `US-ASCII` String", "The lazy dog"),
 
     info(codecs.ascii32, "`US-ASCII` String prefixed by 32-bit 2s complement big-endian size field", "The lazy dog"),
     info(codecs.ascii32L, "`US-ASCII` String prefixed by 32-bit 2s complement little-endian size field", "The lazy dog"),
-    info(codecs.utf8_32, "`UTF8` String prefixed by 32-bit 2s complement big-endian size field", "The lazy dog"),
-    info(codecs.utf8_32L, "`UTF8` String prefixed by 32-bit 2s complement little-endian size field", "The lazy dog"),
+    info(codecs.utf8_32, "`UTF8` String prefixed by 32-bit 2s complement big-endian size field", "árvíztűrő ütvefúrógép"),
+    info(codecs.utf8_32L, "`UTF8` String prefixed by 32-bit 2s complement little-endian size field", "árvíztűrő ütvefúrógép"),
 
     info(codecs.uuid, "`UUID` as 2 64-bit big-endian longs", UUID.randomUUID())
   )
