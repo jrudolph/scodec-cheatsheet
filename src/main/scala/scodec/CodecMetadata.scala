@@ -24,8 +24,8 @@ object CodecMetadata {
 
 case class ExpressionAndSyntax[T](value: T, syntax: String)
 object ExpressionAndSyntax {
-  implicit def expressionAndSyntax[T](value: T): ExpressionAndSyntax[T] = macro exprMacro[T]
-  implicit def expressionAndSyntaxFromString[T](code: String): ExpressionAndSyntax[T] = macro exprFromStringMacro[T]
+  implicit def fromValue[T](value: T): ExpressionAndSyntax[T] = macro exprMacro[T]
+  def fromString[T](code: String): ExpressionAndSyntax[T] = macro exprFromStringMacro[T]
 
   def exprMacro[T: ctx.WeakTypeTag](ctx: blackbox.Context)(value: ctx.Expr[T]): ctx.Expr[ExpressionAndSyntax[T]] = {
     import ctx.universe._

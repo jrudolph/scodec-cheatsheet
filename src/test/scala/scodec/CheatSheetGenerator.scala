@@ -1,5 +1,7 @@
 package scodec
 
+import java.util.UUID
+
 import scodec.bits._
 import codecs._
 
@@ -40,8 +42,8 @@ object CheatSheetGenerator extends App {
     CodecInfo(metadata, description, None)
 
   val primitives = Seq[CodecInfo[_]](
-    info(codecs.bits, "All the remaining bits", """bin"11010110101""""),
-    info(codecs.bytes, "All the remaining bytes", """hex"5468697320697320""""),
+    info(codecs.bits, "All the remaining bits", ExpressionAndSyntax.fromString("""bin"11010110101"""")),
+    info(codecs.bytes, "All the remaining bytes", ExpressionAndSyntax.fromString("""hex"5468697320697320"""")),
 
     info(codecs.byte, "A single byte", 89: Byte),
 
@@ -76,13 +78,31 @@ object CheatSheetGenerator extends App {
     info(codecs.vintL, "Variable-length little-endian integer", 0x123456),
     info(codecs.vlong, "Variable-length big-endian long", 0x81234567abcdL),
     info(codecs.vlongL, "Variable-length little-endian long", 0x81234567abcdL),
-    info(codecs.vpbcd, "Variable-length packed decimal longs", 12345678901L)
+    info(codecs.vpbcd, "Variable-length packed decimal longs", 12345678901L),
+
+    info(codecs.float, "32-bit big-endian IEEE 754 floating point number", 1.234234387f),
+    info(codecs.floatL, "32-bit little-endian IEEE 754 floating point number", 1.234234387f),
+    info(codecs.double, "64-bit big-endian IEEE 754 floating point number", 1.234234387d),
+    info(codecs.doubleL, "64-bit little-endian IEEE 754 floating point number", 1.234234387d),
+    info(codecs.bool, "1-bit boolean", true),
+
+    info(codecs.ascii, "`US-ASCII` String consuming remaining input", "The lazy dog"),
+    info(codecs.utf8, "`UTF8` String consuming remaining input", "The lazy dog"),
+    info(codecs.cstring, "Null-terminated `US-ASCII` String", "The lazy dog"),
+
+    info(codecs.ascii32, "`US-ASCII` String prefixed by 32-bit 2s complement big-endian size field", "The lazy dog"),
+    info(codecs.ascii32L, "`US-ASCII` String prefixed by 32-bit 2s complement little-endian size field", "The lazy dog"),
+    info(codecs.utf8_32, "`UTF8` String prefixed by 32-bit 2s complement big-endian size field", "The lazy dog"),
+    info(codecs.utf8_32L, "`UTF8` String prefixed by 32-bit 2s complement little-endian size field", "The lazy dog"),
+
+    info(codecs.uuid, "`UUID` as 2 64-bit big-endian longs", UUID.randomUUID())
   )
 
   /*
+  TODO:
+
 `bits(size)`
 `bytes(size)`
-
 
 `byte(nBits)`
 `ubyte(nBits)`
@@ -98,6 +118,28 @@ object CheatSheetGenerator extends App {
 `uintL(nBits)`
 `longL(nBits)`
 `ulongL(nBits)`
+
+bool(nBits)
+string(charset)
+
+
+string32(charset)
+string32L(charset)
+
+provide
+ignore
+
+constant(bits)
+constant(bytes)
+constant(Integral)
+
+3 variants of constantLenient
+
+fixedSizeBits
+fixedSizeBytes
+
+paddedFixedSizeBits
+paddedFixedSizeBitsDependend
    */
 
   def createTable(infos: Seq[CodecInfo[_]]): String = {
