@@ -11,12 +11,22 @@ object CodecMetadata {
     import ctx.universe._
 
     val tree = codec.tree
-    val name: String = tree match {
-      case q"$qual.${ TermName(name) }" ⇒ name
+
+    val name = {
+      val pos = tree.pos
+      if (!pos.isRange) println(s"Does not have a rangePos $pos $tree")
+
+      new String(pos.source.content.drop(pos.start).take(pos.end - pos.start))
     }
 
     val elementTpe = weakTypeOf[T]
-    val tpe: String = elementTpe.typeSymbol.name.toString
+
+    def simplifyType(tpe: Type): String = tpe match {
+      case tq"$qual.${ TypeName(x) }" ⇒ x
+      case tq"shapeless.::[$a, $b]"   ⇒ s"$a :: ${simplifyType(b.tpe)}"
+      case x                          ⇒ x.toString
+    }
+    val tpe: String = simplifyType(elementTpe) //.toString //typeSymbol.name.toString
 
     reify(CodecMetadata(codec.splice, ctx.literal(name).splice, ctx.literal(tpe).splice))
   }

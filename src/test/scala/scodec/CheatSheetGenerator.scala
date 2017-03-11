@@ -4,6 +4,7 @@ import java.util.UUID
 
 import scodec.bits._
 import codecs._
+import shapeless._
 
 object CheatSheetGenerator extends App {
   case class CodecInfo[T](
@@ -98,7 +99,18 @@ object CheatSheetGenerator extends App {
     info(codecs.utf8_32, "`UTF8` String prefixed by 32-bit 2s complement big-endian size field", "árvíztűrő ütvefúrógép"),
     info(codecs.utf8_32L, "`UTF8` String prefixed by 32-bit 2s complement little-endian size field", "árvíztűrő ütvefúrógép"),
 
-    info(codecs.uuid, "`UUID` as 2 64-bit big-endian longs", UUID.fromString("f41561aa-f759-4cde-ab07-c0c0cc0db8d8"))
+    info(codecs.uuid, "`UUID` as 2 64-bit big-endian longs", UUID.fromString("f41561aa-f759-4cde-ab07-c0c0cc0db8d8")),
+
+    info(codecs.constant(bin"110101"), "Constant bits", ()),
+    info(codecs.constant(bin"10"), "Constant bits", ()),
+
+    info(codecs.constant(hex"1234567890"), "Constant bytes", ()),
+    info(codecs.constant(hex"abcdef"), "Constant bytes", ()),
+
+    info(codecs.constant(0x42: Byte), "Constant bytes", ()),
+    info(codecs.constant(0x2342: Short, 0x42: Short), "Constant bytes from integral", ()),
+    info(codecs.constant(0x2342: Int, 0x42: Short), "Constant bytes from integral", ()),
+    info(codecs.constant(0x2342: Long, 0x42: Short), "Constant bytes from integral", ())
   )
 
   /*
@@ -125,16 +137,11 @@ object CheatSheetGenerator extends App {
 bool(nBits)
 string(charset)
 
-
 string32(charset)
 string32L(charset)
 
 provide
 ignore
-
-constant(bits)
-constant(bytes)
-constant(Integral)
 
 3 variants of constantLenient
 
@@ -142,7 +149,159 @@ fixedSizeBits
 fixedSizeBytes
 
 paddedFixedSizeBits
-paddedFixedSizeBitsDependend
+paddedFixedSizeBitsDependent
+
+limitedSizeBits
+limitedSizeBytes
+
+variableSizeBits
+variableSizeBytes
+
+variableSizeBitsLong
+variableSizeBytesLong
+
+variableSizePrefixedBits
+variableSizePrefixedBytes
+
+variableSizePrefixedBitsLong
+variableSizePrefixedBytesLong
+
+peek
+peekVariableSizeBits
+peekVariableSizeBitsLong
+peekVariableSizeBytes
+peekVariableSizeBytesLong
+
+byteAligned
+conditional
+optional
+
+bitsRemaining
+
+withDefault
+
+withDefaultValue
+
+recover
+
+lookahead
+
+choice
+
+vector
+vectorOfN
+sizedVector
+vectorMultiplexed
+vectorDelimited
+
+list
+listOfN
+sizedList
+listMultiplexed
+listDelimited
+
+endiannessDependent
+
+either
+fallback
+lazily
+fail
+
+zlib
+
+filtered
+
+checksummed
+
+encrypted
+
+fixedSizeSignature
+variableSizeSignature
+
+certificate
+
+x509Certificate
+
+discriminated.by
+
+mappedEnum
+
+discriminatorFallback
+
+enumerated
+
+hlist
+
+log...
+
+constrainedVariableSizeBytes
+constrainedVariableSizeBytesLong
+constrainedVariableSizeBytes
+constrainedVariableSizeBytesLong
+
+   */
+
+  val combinators = Seq[CodecInfo[_]](
+    info(uint8.hlist, "Convert codec to HList", 28 :: HNil),
+
+    info(uint8 pairedWith uint16, "Concat two codecs into a 2-tuple", (0x12, 0x3456)),
+    info(uint8 pairedWith uint16 pairedWith cstring, "Concat two codecs into a 2-tuple", ((0x12, 0x3456), "abc")),
+    info(uint8 ~ uint16, "Concat two codecs into a 2-tuple", (0x12, 0x3456)),
+    info(uint8 ~ uint16 ~ cstring, "Concat two codecs into a 2-tuple", ((0x12, 0x3456), "abc")),
+
+    info(constant(0x12) dropLeft uint8, "Concat two codecs discarding the Unit value of the first one", 0x68),
+    info(constant(0x12) ~> uint8, "Concat two codecs discarding the Unit value of the first one", 0x68)
+  )
+
+  /* combinator TODO:
+xmap
+exmap
+
+narrow
+widen
+
+dropLeft
+~>
+
+dropRight
+<~
+
+flattenLeftPairs
+
+unit
+
+flatZip
+>>~
+
+consume
+
+complete
+compact
+
+upcast
+downcast
+withContext
+|
+
+:+:
+toField
+
+::
+:~>:
+dropUnits
+:+
+:::
+flatConcat
+flatAppend
+polyxmap
+polyxmap1
+derive
+
+::
+:~>:
+flatPrepend
+>>:~
+flatZipHList
    */
 
   def createTable(infos: Seq[CodecInfo[_]]): String = {
@@ -174,5 +333,11 @@ paddedFixedSizeBitsDependend
       rows.map(formatRow).mkString("\n")
   }
 
+  println("## Primitive Codecs")
+  println()
   println(createTable(primitives))
+  println()
+  println("## Combinators")
+  println()
+  println(createTable(combinators))
 }
