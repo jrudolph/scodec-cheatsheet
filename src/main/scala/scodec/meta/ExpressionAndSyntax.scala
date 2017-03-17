@@ -15,6 +15,7 @@ object ExpressionAndSyntax {
     if (!pos.isRange) println(s"Does not have a rangePos $pos $value")
 
     val str = new String(pos.source.content.drop(pos.start).take(pos.end - pos.start))
+    //println(s"""Prefix: ${ctx.prefix.tree} ${ctx.macroApplication} Pos: $pos Value: ${value.tree} Text: '$str'""")
 
     reify(ExpressionAndSyntax(value.splice, ctx.literal(str).splice))
   }
@@ -29,5 +30,17 @@ object ExpressionAndSyntax {
 
     // necessary because parsed string wasn't typed yet
     retypeCheck(reify(ExpressionAndSyntax(value.splice, code.splice)))
+  }
+
+  def withSyntaxMacro[T: ctx.WeakTypeTag](ctx: blackbox.Context): ctx.Expr[ExpressionAndSyntax[T]] = {
+    import ctx.universe._
+
+    ctx.prefix.tree match {
+      case q"$qual.AddWithSyntax[..$targs]($expr)" ⇒ exprMacro[T](ctx)(ctx.Expr[T](expr))
+    }
+  }
+
+  implicit class AddWithSyntax[T](val t: T) extends AnyVal {
+    def withSyntax: ExpressionAndSyntax[T] = macro withSyntaxMacro[T]
   }
 }

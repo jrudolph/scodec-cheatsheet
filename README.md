@@ -70,7 +70,7 @@ This list is a work-in-progress overview over the predefined codecs.
 
 | Name | Description | Example usage | Example result type | Example Min Bits | Example Max Bits | Coding Examples |
 | - | - | - | - | - | - | - |
-| `hlist` | Convert codec to HList | `uint8.hlist` | `Int :: HNil` | 8 | 8 | `:: HNil` ⇔ `1c₁₆` (1 byte) |
+| `hlist` | Convert codec to HList | `uint8.hlist` | `Int :: HNil` | 8 | 8 | `42 :: HNil` ⇔ `2a₁₆` (1 byte) |
 | `pairedWith` | Concat two codecs into a 2-tuple | `uint8 pairedWith uint16` | `(Int, Int)` | 24 | 24 | `(0x12, 0x3456)` ⇔ `12 34 56₁₆` (3 bytes) |
 | `pairedWith` | Concat two codecs into a 2-tuple | `uint8 pairedWith uint16 pairedWith cstring` | `((Int, Int), String)` | 24 | ∞ | `((0x12, 0x3456), "abc")` ⇔ `12 34 56 61 62 63 00₁₆` (7 bytes) |
 | `~` | Concat two codecs into a 2-tuple | `uint8 ~ uint16` | `(Int, Int)` | 24 | 24 | `(0x12, 0x3456)` ⇔ `12 34 56₁₆` (3 bytes) |
@@ -79,9 +79,9 @@ This list is a work-in-progress overview over the predefined codecs.
 | `~>` | Concat two codecs discarding the Unit value of the first one | `constant(0x12) ~> uint8` | `Int` | 16 | 16 | `0x68` ⇔ `12 68₁₆` (2 bytes) |
 | `flatZip` | Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first. | `uint8 flatZip { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }` | `(Int, Int)` | 8 | ∞ | `(23, 42)` ⇔ `17 2a₁₆` (2 bytes) </br> `(112, 0x1234)` ⇔ `70 12 34₁₆` (3 bytes) |
 | `>>~` | Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first. | `uint8 >>~ { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }` | `(Int, Int)` | 8 | ∞ | `(23, 42)` ⇔ `17 2a₁₆` (2 bytes) </br> `(112, 0x1234)` ⇔ `70 12 34₁₆` (3 bytes) |
-| `::` | Concat two codecs into an HList | `:: cstring` | `Int :: String :: HNil` | 8 | ∞ | `:: "zweiundvierzig" :: HNil` ⇔ `42 7a 77 65 69 75 6e 64 76 69 65 72 7a 69 67 00₁₆` (16 bytes) |
-| `dropUnits` | Remove Unit elements from an HList codec | `constant(hex"ca fe") :: cstring).dropUnits` | `String :: HNil` | 16 | ∞ | `:: HNil` ⇔ `ca fe 64 72 65 69 75 6e 64 7a 77 61 6e 7a 69 67 00₁₆` (17 bytes) |
-| `:::` | Concat two HList codecs | `(uint8 :: cstring) ::: (constant(0x23) :: uint16)` | `Int :: String :: Unit :: Int :: HNil` | 32 | ∞ | `:: "zweiundvierzig" :: () :: 0xabcd :: HNil` ⇔ `42 7a 77 65 69 75 6e 64 76 69 65 72 7a 69 67 00 23 ab cd₁₆` (19 bytes) |
+| `::` | Concat two codecs into an HList | `:: cstring` | `Int :: String :: HNil` | 8 | ∞ | `0x42 :: "zweiundvierzig" :: HNil` ⇔ `42 7a 77 65 69 75 6e 64 76 69 65 72 7a 69 67 00₁₆` (16 bytes) |
+| `dropUnits` | Remove Unit elements from an HList codec | `constant(hex"ca fe") :: cstring).dropUnits` | `String :: HNil` | 16 | ∞ | `"dreiundzwanzig" :: HNil` ⇔ `ca fe 64 72 65 69 75 6e 64 7a 77 61 6e 7a 69 67 00₁₆` (17 bytes) |
+| `:::` | Concat two HList codecs | `(uint8 :: cstring) ::: (constant(0x23) :: uint16)` | `Int :: String :: Unit :: Int :: HNil` | 32 | ∞ | `0x42 :: "zweiundvierzig" :: () :: 0xabcd :: HNil` ⇔ `42 7a 77 65 69 75 6e 64 76 69 65 72 7a 69 67 00 23 ab cd₁₆` (19 bytes) |
 
 ## Contributing
 
