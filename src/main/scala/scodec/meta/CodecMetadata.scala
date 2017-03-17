@@ -1,10 +1,12 @@
 package scodec.meta
 
-import scodec.Codec
-
 import scala.annotation.tailrec
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
+
+import shapeless.HNil
+
+import scodec.Codec
 
 case class CodecMetadata[T](codec: Codec[T], name: String, syntax: String, tpeString: String)
 object CodecMetadata {
@@ -32,10 +34,15 @@ object CodecMetadata {
 
     val elementTpe = weakTypeOf[T].dealias.map(_.dealias)
 
+    val ShapelessColonSymbol = weakTypeOf[shapeless.::[Int, HNil]].typeConstructor.typeSymbol
+    val HNilType = weakTypeOf[shapeless.HNil]
+
     def simplifyType(tpe: Type): String = tpe match {
-      case tq"$qual.${ TypeName(x) }" ⇒ x
-      case tq"shapeless.::[$a, $b]"   ⇒ s"$a :: ${simplifyType(b.tpe)}"
-      case x                          ⇒ x.toString
+      case HNilType                                 ⇒ "HNil"
+      case TypeRef(_, `ShapelessColonSymbol`, args) ⇒ args.map(simplifyType).map(_.toString).mkString(" :: ")
+      case x ⇒
+        //println(s"Type is $tpe class: ${tpe.getClass}")
+        x.toString
     }
     val tpe: String = simplifyType(elementTpe) //.toString //typeSymbol.name.toString
 
