@@ -96,7 +96,7 @@ This list is a work-in-progress overview over the predefined codecs.
 
 ## Contributing
 
- * Run `sbt "test:run-main scodec.CheatSheetGenerator` to generate the table
+ * Run `sbt "test:run-main scodec.meta.CheatSheetGenerator` to generate the table
  * Format the markdown using the http://markdowntable.com/
 
 ## License
