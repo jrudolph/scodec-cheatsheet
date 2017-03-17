@@ -1,5 +1,10 @@
 package scodec.meta
 
+import java.io.File
+import java.io.FileOutputStream
+
+import scala.io.Source
+
 object CheatSheetGenerator extends App {
   case class Column(name: String, extractor: CodecInfo[_] ⇒ String) {
     def named(newName: String) = copy(name = newName)
@@ -45,15 +50,42 @@ object CheatSheetGenerator extends App {
       rows.map(formatRow).mkString("\n")
   }
 
-  println("## Primitive Codecs")
-  println()
-  println(createTable(ScodecCodecs.PrimitiveCodecs, Columns.PrimitiveColumns))
-  println()
-  println("## Parametrized Codecs")
-  println()
-  println(createTable(ScodecCodecs.ParameterizedCodecs, Columns.ComplexColumns))
-  println()
-  println("## Combinators")
-  println()
-  println(createTable(ScodecCodecs.CodecCombinators, Columns.ComplexColumns))
+  val tablesString =
+    s"""
+       %## Primitive Codecs
+       %
+       %${createTable(ScodecCodecs.PrimitiveCodecs, Columns.PrimitiveColumns)}
+       %
+       %## Parameterized Codecs
+       %
+       %${createTable(ScodecCodecs.ParameterizedCodecs, Columns.ComplexColumns)}
+       %
+       %## Combinators
+       %
+       %${createTable(ScodecCodecs.CodecCombinators, Columns.ComplexColumns)}
+       %
+       %""".stripMargin('%')
+
+  def patchREADME(newTable: String) = {
+    val readmeFile = new File("README.md")
+
+    val newFile = File.createTempFile("readme", ".md.tmp")
+
+    val prefix =
+      Source.fromFile(readmeFile, "utf8").getLines()
+        .takeWhile(!_.startsWith("## Primitive Codecs"))
+        .mkString("\n")
+
+    val suffix =
+      Source.fromFile(readmeFile, "utf8").getLines()
+        .dropWhile(!_.startsWith("## Contributing"))
+        .mkString("\n")
+
+    val fos = new FileOutputStream(newFile)
+    fos.write((prefix + tablesString + suffix).getBytes("utf8"))
+    fos.close()
+    newFile.renameTo(readmeFile)
+  }
+
+  patchREADME(tablesString)
 }

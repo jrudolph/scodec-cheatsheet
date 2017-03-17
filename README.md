@@ -53,7 +53,7 @@ This list is a work-in-progress overview over the predefined codecs.
 | `utf8_32L` | `String` | `UTF8` String prefixed by 32-bit 2s complement little-endian size field | 32 | ∞ | `"árvíztűrő ütvefúrógép"` ⇔ `1d 00 00 00 c3 a1 72 76 c3 ad 7a 74 c5 b1 72 c5 91 20 c3 bc 74 76 65 66 c3 ba 72 c3 b3 67 c3 a9 70₁₆` (33 bytes) |
 | `uuid` | `java.util.UUID` | `UUID` as 2 64-bit big-endian longs | 128 | 128 | `UUID.fromString("f41561aa-f759-4cde-ab07-c0c0cc0db8d8")` ⇔ `f4 15 61 aa f7 59 4c de ab 07 c0 c0 cc 0d b8 d8₁₆` (16 bytes) |
 
-## Parametrized Codecs
+## Parameterized Codecs
 
 | Name | Description | Example usage | Example result type | Example Min Bits | Example Max Bits | Coding Examples |
 | - | - | - | - | - | - | - |
