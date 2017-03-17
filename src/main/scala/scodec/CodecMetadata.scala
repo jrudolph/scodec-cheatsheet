@@ -1,5 +1,6 @@
 package scodec
 
+import scala.annotation.tailrec
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
@@ -12,10 +13,13 @@ object CodecMetadata {
 
     val tree = codec.tree
 
-    val name = tree match {
-      case q"$qual.${ name: TermName }"                             ⇒ name.decodedName.toString
+    @tailrec
+    def getName(tree: Tree): String = tree match {
+      case q"$qual.${ name: TermName }" ⇒ name.decodedName.toString
       case q"$qual.${ name: TermName }[..${ targs }](...${ args })" ⇒ name.decodedName.toString
+      case Block(_, expr) ⇒ getName(expr)
     }
+    val name = getName(tree)
 
     val syntax = {
       val pos = tree.pos
@@ -24,7 +28,7 @@ object CodecMetadata {
       new String(pos.source.content.drop(pos.start).take(pos.end - pos.start))
     }
 
-    val elementTpe = weakTypeOf[T]
+    val elementTpe = weakTypeOf[T].dealias
 
     def simplifyType(tpe: Type): String = tpe match {
       case tq"$qual.${ TypeName(x) }" ⇒ x
