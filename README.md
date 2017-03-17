@@ -7,7 +7,7 @@ This list is a work-in-progress overview over the predefined codecs.
 
 ## Primitive Codecs
 
-| Name | Element Type | Description | Min Bits | Max Bits | Examples |
+| Name | Result Type | Description | Min Bits | Max Bits | Coding Examples |
 | - | - | - | - | - | - |
 | `bits` | `scodec.bits.BitVector` | All the remaining bits | 0 | ∞ | `bin"11010110101"` ⇔ `11010110 101₂` (11 bits) |
 | `bytes` | `scodec.bits.ByteVector` | All the remaining bytes | 0 | ∞ | `hex"5468697320697320"` ⇔ `54 68 69 73 20 69 73 20₁₆` (8 bytes) |
@@ -55,33 +55,33 @@ This list is a work-in-progress overview over the predefined codecs.
 
 ## Parametrized Codecs
 
-| Name | Code example | Element Type | Description | Min Bits | Max Bits | Examples |
+| Name | Description | Example usage | Example result type | Example Min Bits | Example Max Bits | Coding Examples |
 | - | - | - | - | - | - | - |
-| `constant` | `codecs.constant(bin"110101")` | `Unit` | Constant bits | 6 | 6 | `()` ⇔ `110101₂` (6 bits) |
-| `constant` | `codecs.constant(bin"10")` | `Unit` | Constant bits | 2 | 2 | `()` ⇔ `10₂` (2 bits) |
-| `constant` | `codecs.constant(hex"1234567890")` | `Unit` | Constant bytes | 40 | 40 | `()` ⇔ `12 34 56 78 90₁₆` (5 bytes) |
-| `constant` | `codecs.constant(hex"abcdef")` | `Unit` | Constant bytes | 24 | 24 | `()` ⇔ `ab cd ef₁₆` (3 bytes) |
-| `constant` | `codecs.constant(0x42: Byte)` | `Unit` | Constant bytes | 8 | 8 | `()` ⇔ `42₁₆` (1 byte) |
-| `constant` | `codecs.constant(0x2342: Short, 0x42: Short)` | `Unit` | Constant bytes from integral | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
-| `constant` | `codecs.constant(0x2342: Int, 0x42: Short)` | `Unit` | Constant bytes from integral | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
-| `constant` | `codecs.constant(0x2342: Long, 0x42: Short)` | `Unit` | Constant bytes from integral | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
+| `constant` | Constant bits | `codecs.constant(bin"110101")` | `Unit` | 6 | 6 | `()` ⇔ `110101₂` (6 bits) |
+| `constant` | Constant bits | `codecs.constant(bin"10")` | `Unit` | 2 | 2 | `()` ⇔ `10₂` (2 bits) |
+| `constant` | Constant bytes | `codecs.constant(hex"1234567890")` | `Unit` | 40 | 40 | `()` ⇔ `12 34 56 78 90₁₆` (5 bytes) |
+| `constant` | Constant bytes | `codecs.constant(hex"abcdef")` | `Unit` | 24 | 24 | `()` ⇔ `ab cd ef₁₆` (3 bytes) |
+| `constant` | Constant bytes | `codecs.constant(0x42: Byte)` | `Unit` | 8 | 8 | `()` ⇔ `42₁₆` (1 byte) |
+| `constant` | Constant bytes from integral | `codecs.constant(0x2342: Short, 0x42: Short)` | `Unit` | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
+| `constant` | Constant bytes from integral | `codecs.constant(0x2342: Int, 0x42: Short)` | `Unit` | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
+| `constant` | Constant bytes from integral | `codecs.constant(0x2342: Long, 0x42: Short)` | `Unit` | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
 
 ## Combinators
 
-| Name | Code example | Element Type | Description | Min Bits | Max Bits | Examples |
+| Name | Description | Example usage | Example result type | Example Min Bits | Example Max Bits | Coding Examples |
 | - | - | - | - | - | - | - |
-| `hlist` | `uint8.hlist` | `shapeless.::[Int,shapeless.HNil]` | Convert codec to HList | 8 | 8 | `:: HNil` ⇔ `1c₁₆` (1 byte) |
-| `pairedWith` | `uint8 pairedWith uint16` | `(Int, Int)` | Concat two codecs into a 2-tuple | 24 | 24 | `(0x12, 0x3456)` ⇔ `12 34 56₁₆` (3 bytes) |
-| `pairedWith` | `uint8 pairedWith uint16 pairedWith cstring` | `((Int, Int), String)` | Concat two codecs into a 2-tuple | 24 | ∞ | `((0x12, 0x3456), "abc")` ⇔ `12 34 56 61 62 63 00₁₆` (7 bytes) |
-| `~` | `uint8 ~ uint16` | `(Int, Int)` | Concat two codecs into a 2-tuple | 24 | 24 | `(0x12, 0x3456)` ⇔ `12 34 56₁₆` (3 bytes) |
-| `~` | `uint8 ~ uint16 ~ cstring` | `((Int, Int), String)` | Concat two codecs into a 2-tuple | 24 | ∞ | `((0x12, 0x3456), "abc")` ⇔ `12 34 56 61 62 63 00₁₆` (7 bytes) |
-| `dropLeft` | `constant(0x12) dropLeft uint8` | `Int` | Concat two codecs discarding the Unit value of the first one | 16 | 16 | `0x68` ⇔ `12 68₁₆` (2 bytes) |
-| `~>` | `constant(0x12) ~> uint8` | `Int` | Concat two codecs discarding the Unit value of the first one | 16 | 16 | `0x68` ⇔ `12 68₁₆` (2 bytes) |
-| `flatZip` | `uint8 flatZip { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }` | `(Int, Int)` | Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first. | 8 | ∞ | `(23, 42)` ⇔ `17 2a₁₆` (2 bytes) </br> `(112, 0x1234)` ⇔ `70 12 34₁₆` (3 bytes) |
-| `>>~` | `uint8 >>~ { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }` | `(Int, Int)` | Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first. | 8 | ∞ | `(23, 42)` ⇔ `17 2a₁₆` (2 bytes) </br> `(112, 0x1234)` ⇔ `70 12 34₁₆` (3 bytes) |
-| `::` | `:: cstring` | `shapeless.::[Int,shapeless.::[String,shapeless.HNil]]` | Concat two codecs into an HList | 8 | ∞ | `:: "zweiundvierzig" :: HNil` ⇔ `42 7a 77 65 69 75 6e 64 76 69 65 72 7a 69 67 00₁₆` (16 bytes) |
-| `dropUnits` | `constant(hex"ca fe") :: cstring).dropUnits` | `shapeless.::[String,shapeless.HNil]` | Remove Unit elements from an HList codec | 16 | ∞ | `:: HNil` ⇔ `ca fe 64 72 65 69 75 6e 64 7a 77 61 6e 7a 69 67 00₁₆` (17 bytes) |
-| `:::` | `(uint8 :: cstring) ::: (constant(0x23) :: uint16)` | `shapeless.::[Int,shapeless.::[String,shapeless.::[Unit,shapeless.::[Int,shapeless.HNil]]]]` | Concat two HList codecs | 32 | ∞ | `:: "zweiundvierzig" :: () :: 0xabcd :: HNil` ⇔ `42 7a 77 65 69 75 6e 64 76 69 65 72 7a 69 67 00 23 ab cd₁₆` (19 bytes) |
+| `hlist` | Convert codec to HList | `uint8.hlist` | `shapeless.::[Int,shapeless.HNil]` | 8 | 8 | `:: HNil` ⇔ `1c₁₆` (1 byte) |
+| `pairedWith` | Concat two codecs into a 2-tuple | `uint8 pairedWith uint16` | `(Int, Int)` | 24 | 24 | `(0x12, 0x3456)` ⇔ `12 34 56₁₆` (3 bytes) |
+| `pairedWith` | Concat two codecs into a 2-tuple | `uint8 pairedWith uint16 pairedWith cstring` | `((Int, Int), String)` | 24 | ∞ | `((0x12, 0x3456), "abc")` ⇔ `12 34 56 61 62 63 00₁₆` (7 bytes) |
+| `~` | Concat two codecs into a 2-tuple | `uint8 ~ uint16` | `(Int, Int)` | 24 | 24 | `(0x12, 0x3456)` ⇔ `12 34 56₁₆` (3 bytes) |
+| `~` | Concat two codecs into a 2-tuple | `uint8 ~ uint16 ~ cstring` | `((Int, Int), String)` | 24 | ∞ | `((0x12, 0x3456), "abc")` ⇔ `12 34 56 61 62 63 00₁₆` (7 bytes) |
+| `dropLeft` | Concat two codecs discarding the Unit value of the first one | `constant(0x12) dropLeft uint8` | `Int` | 16 | 16 | `0x68` ⇔ `12 68₁₆` (2 bytes) |
+| `~>` | Concat two codecs discarding the Unit value of the first one | `constant(0x12) ~> uint8` | `Int` | 16 | 16 | `0x68` ⇔ `12 68₁₆` (2 bytes) |
+| `flatZip` | Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first. | `uint8 flatZip { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }` | `(Int, Int)` | 8 | ∞ | `(23, 42)` ⇔ `17 2a₁₆` (2 bytes) </br> `(112, 0x1234)` ⇔ `70 12 34₁₆` (3 bytes) |
+| `>>~` | Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first. | `uint8 >>~ { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }` | `(Int, Int)` | 8 | ∞ | `(23, 42)` ⇔ `17 2a₁₆` (2 bytes) </br> `(112, 0x1234)` ⇔ `70 12 34₁₆` (3 bytes) |
+| `::` | Concat two codecs into an HList | `:: cstring` | `shapeless.::[Int,shapeless.::[String,shapeless.HNil]]` | 8 | ∞ | `:: "zweiundvierzig" :: HNil` ⇔ `42 7a 77 65 69 75 6e 64 76 69 65 72 7a 69 67 00₁₆` (16 bytes) |
+| `dropUnits` | Remove Unit elements from an HList codec | `constant(hex"ca fe") :: cstring).dropUnits` | `shapeless.::[String,shapeless.HNil]` | 16 | ∞ | `:: HNil` ⇔ `ca fe 64 72 65 69 75 6e 64 7a 77 61 6e 7a 69 67 00₁₆` (17 bytes) |
+| `:::` | Concat two HList codecs | `(uint8 :: cstring) ::: (constant(0x23) :: uint16)` | `shapeless.::[Int,shapeless.::[String,shapeless.::[Unit,shapeless.::[Int,shapeless.HNil]]]]` | 32 | ∞ | `:: "zweiundvierzig" :: () :: 0xabcd :: HNil` ⇔ `42 7a 77 65 69 75 6e 64 76 69 65 72 7a 69 67 00 23 ab cd₁₆` (19 bytes) |
 
 ## Contributing
 

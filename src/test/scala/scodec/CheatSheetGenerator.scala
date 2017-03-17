@@ -309,7 +309,9 @@ flatPrepend
 flatZipHList
    */
 
-  case class Column(name: String, extractor: CodecInfo[_] ⇒ String)
+  case class Column(name: String, extractor: CodecInfo[_] ⇒ String) {
+    def named(newName: String) = copy(name = newName)
+  }
   def bqColumn(name: String, extractor: CodecInfo[_] ⇒ String): Column =
     Column(name, extractor.andThen(str ⇒ s"`$str`"))
 
@@ -318,19 +320,23 @@ flatZipHList
 
   object Columns {
     val Name = bqColumn("Name", _.metadata.name)
-    val Code = bqColumn("Code example", _.metadata.syntax)
-    val ElementType = bqColumn("Element Type", _.metadata.tpeString)
+    val Code = bqColumn("Example usage", _.metadata.syntax)
+    val ElementType = bqColumn("Result Type", _.metadata.tpeString)
     val Description = Column("Description", _.description)
     val MinBits = Column("Min Bits", _.metadata.codec.sizeBound.lowerBound.toString)
     val MaxBits = Column("Max Bits", _.metadata.codec.sizeBound.upperBound.map(_.toString).getOrElse("∞"))
-    val Examples = Column("Examples", examples)
+    val Examples = Column("Coding Examples", examples)
 
     val PrimitiveColumns = Seq(
       Name, ElementType, Description, MinBits, MaxBits, Examples
     )
 
     val ComplexColumns = Seq(
-      Name, Code, ElementType, Description, MinBits, MaxBits, Examples
+      Name, Description, Code,
+      ElementType.named("Example result type"),
+      MinBits.named("Example Min Bits"),
+      MaxBits.named("Example Max Bits"),
+      Examples
     )
   }
 
