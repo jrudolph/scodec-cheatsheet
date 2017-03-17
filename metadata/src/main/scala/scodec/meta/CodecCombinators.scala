@@ -1,12 +1,13 @@
 package scodec.meta
 
+import scala.language.postfixOps
+
 import shapeless._
 import scodec.bits._
 import CodecInfo.info
 import scodec.codecs._
 import CodecMetadata.meta
 import ExpressionAndSyntax.withSyntax
-import scodec.Codec
 import scodec.meta.CodecInfo.info
 
 trait CodecCombinators {

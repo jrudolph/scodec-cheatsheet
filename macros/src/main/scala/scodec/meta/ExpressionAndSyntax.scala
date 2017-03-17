@@ -1,6 +1,7 @@
 package scodec.meta
 
 import scala.language.experimental.macros
+import scala.language.implicitConversions
 import scala.reflect.macros.blackbox
 
 case class ExpressionAndSyntax[T](value: T, syntax: String)
@@ -14,10 +15,14 @@ object ExpressionAndSyntax {
     val pos = value.tree.pos
     if (!pos.isRange) println(s"Does not have a rangePos $pos $value")
 
-    val str = new String(pos.source.content.drop(pos.start).take(pos.end - pos.start))
+    val str = new String(pos.source.content.slice(pos.start, pos.end))
+
+    // TODO: DRY up with CodecMetadata
+    def lit(str: String): ctx.Expr[String] = ctx.Expr[String](q"$str")
+
     //println(s"""Prefix: ${ctx.prefix.tree} ${ctx.macroApplication} Pos: $pos Value: ${value.tree} Text: '$str'""")
 
-    reify(ExpressionAndSyntax(value.splice, ctx.literal(str).splice))
+    reify(ExpressionAndSyntax(value.splice, lit(str).splice))
   }
   def exprFromStringMacro[T: ctx.WeakTypeTag](ctx: blackbox.Context)(code: ctx.Expr[String]): ctx.Expr[ExpressionAndSyntax[T]] = {
     import ctx.universe._
@@ -26,7 +31,7 @@ object ExpressionAndSyntax {
     }
     val value = ctx.Expr(ctx.parse(codeString))
 
-    def retypeCheck[T](e: ctx.Expr[T]): ctx.Expr[T] = ctx.Expr[T](ctx.typecheck(ctx.untypecheck(e.tree)))
+    def retypeCheck[X](e: ctx.Expr[X]): ctx.Expr[X] = ctx.Expr[X](ctx.typecheck(ctx.untypecheck(e.tree)))
 
     // necessary because parsed string wasn't typed yet
     retypeCheck(reify(ExpressionAndSyntax(value.splice, code.splice)))

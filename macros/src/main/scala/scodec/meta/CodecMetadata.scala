@@ -1,7 +1,9 @@
 package scodec.meta
 
-import scala.annotation.tailrec
 import scala.language.experimental.macros
+import scala.language.implicitConversions
+
+import scala.annotation.tailrec
 import scala.reflect.macros.blackbox
 
 import shapeless.HNil
@@ -28,8 +30,10 @@ object CodecMetadata {
       val pos = tree.pos
       if (!pos.isRange) println(s"Does not have a rangePos $pos $tree")
 
-      new String(pos.source.content.drop(pos.start).take(pos.end - pos.start))
+      new String(pos.source.content.slice(pos.start, pos.end))
     }
+
+    def lit(str: String): ctx.Expr[String] = ctx.Expr[String](q"$str")
 
     val elementTpe = weakTypeOf[T].dealias.map(_.dealias)
 
@@ -45,6 +49,6 @@ object CodecMetadata {
     }
     val tpe: String = simplifyType(elementTpe) //.toString //typeSymbol.name.toString
 
-    reify(CodecMetadata(codec.splice, ctx.literal(name).splice, ctx.literal(syntax).splice, ctx.literal(tpe).splice))
+    reify(CodecMetadata(codec.splice, lit(name).splice, lit(syntax).splice, lit(tpe).splice))
   }
 }
