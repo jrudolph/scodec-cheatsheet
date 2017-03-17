@@ -68,6 +68,8 @@ object CheatSheetGenerator extends App {
 
   def patchREADME(newTable: String) = {
     val readmeFile = new File("README.md")
+    require(readmeFile.exists(), s"no README.md found at ${readmeFile.getCanonicalPath}")
+    println(s"Updaing ${readmeFile.getCanonicalPath}")
 
     val newFile = File.createTempFile("readme", ".md.tmp")
 

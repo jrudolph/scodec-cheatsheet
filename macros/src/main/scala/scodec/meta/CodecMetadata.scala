@@ -5,7 +5,6 @@ import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
 import shapeless.HNil
-
 import scodec.Codec
 
 case class CodecMetadata[T](codec: Codec[T], name: String, syntax: String, tpeString: String)
