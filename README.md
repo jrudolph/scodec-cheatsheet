@@ -57,14 +57,14 @@ This list is a work-in-progress overview over the predefined codecs.
 
 | Name | Description | Example usage | Example result type | Example Min Bits | Example Max Bits | Coding Examples |
 | - | - | - | - | - | - | - |
-| `constant` | Constant bits | `codecs.constant(bin"110101")` | `Unit` | 6 | 6 | `()` ⇔ `110101₂` (6 bits) |
-| `constant` | Constant bits | `codecs.constant(bin"10")` | `Unit` | 2 | 2 | `()` ⇔ `10₂` (2 bits) |
-| `constant` | Constant bytes | `codecs.constant(hex"1234567890")` | `Unit` | 40 | 40 | `()` ⇔ `12 34 56 78 90₁₆` (5 bytes) |
-| `constant` | Constant bytes | `codecs.constant(hex"abcdef")` | `Unit` | 24 | 24 | `()` ⇔ `ab cd ef₁₆` (3 bytes) |
-| `constant` | Constant bytes | `codecs.constant(0x42: Byte)` | `Unit` | 8 | 8 | `()` ⇔ `42₁₆` (1 byte) |
-| `constant` | Constant bytes from integral | `codecs.constant(0x2342: Short, 0x42: Short)` | `Unit` | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
-| `constant` | Constant bytes from integral | `codecs.constant(0x2342: Int, 0x42: Short)` | `Unit` | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
-| `constant` | Constant bytes from integral | `codecs.constant(0x2342: Long, 0x42: Short)` | `Unit` | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
+| `constant` | Constant bits | `constant(bin"110101")` | `Unit` | 6 | 6 | `()` ⇔ `110101₂` (6 bits) |
+| `constant` | Constant bits | `constant(bin"10")` | `Unit` | 2 | 2 | `()` ⇔ `10₂` (2 bits) |
+| `constant` | Constant bytes | `constant(hex"1234567890")` | `Unit` | 40 | 40 | `()` ⇔ `12 34 56 78 90₁₆` (5 bytes) |
+| `constant` | Constant bytes | `constant(hex"abcdef")` | `Unit` | 24 | 24 | `()` ⇔ `ab cd ef₁₆` (3 bytes) |
+| `constant` | Constant bytes | `constant(0x42: Byte)` | `Unit` | 8 | 8 | `()` ⇔ `42₁₆` (1 byte) |
+| `constant` | Constant bytes from integral | `constant(0x2342: Short, 0x42: Short)` | `Unit` | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
+| `constant` | Constant bytes from integral | `constant(0x2342: Int, 0x42: Short)` | `Unit` | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
+| `constant` | Constant bytes from integral | `constant(0x2342: Long, 0x42: Short)` | `Unit` | 16 | 16 | `()` ⇔ `42 42₁₆` (2 bytes) |
 
 ## Combinators
 

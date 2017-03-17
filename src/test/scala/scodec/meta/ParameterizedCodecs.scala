@@ -1,21 +1,21 @@
 package scodec.meta
 
 import scodec.bits._
-import scodec.codecs
+import scodec.codecs._
 import CodecInfo.info
 
 trait ParameterizedCodecs {
   val ParameterizedCodecs = Seq[CodecInfo[_]](
-    info(codecs.constant(bin"110101"), "Constant bits", ()),
-    info(codecs.constant(bin"10"), "Constant bits", ()),
+    info(constant(bin"110101"), "Constant bits", ()),
+    info(constant(bin"10"), "Constant bits", ()),
 
-    info(codecs.constant(hex"1234567890"), "Constant bytes", ()),
-    info(codecs.constant(hex"abcdef"), "Constant bytes", ()),
+    info(constant(hex"1234567890"), "Constant bytes", ()),
+    info(constant(hex"abcdef"), "Constant bytes", ()),
 
-    info(codecs.constant(0x42: Byte), "Constant bytes", ()),
-    info(codecs.constant(0x2342: Short, 0x42: Short), "Constant bytes from integral", ()),
-    info(codecs.constant(0x2342: Int, 0x42: Short), "Constant bytes from integral", ()),
-    info(codecs.constant(0x2342: Long, 0x42: Short), "Constant bytes from integral", ())
+    info(constant(0x42: Byte), "Constant bytes", ()),
+    info(constant(0x2342: Short, 0x42: Short), "Constant bytes from integral", ()),
+    info(constant(0x2342: Int, 0x42: Short), "Constant bytes from integral", ()),
+    info(constant(0x2342: Long, 0x42: Short), "Constant bytes from integral", ())
   )
 
   /*
