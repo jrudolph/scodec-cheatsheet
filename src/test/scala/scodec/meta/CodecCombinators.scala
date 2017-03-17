@@ -1,12 +1,13 @@
 package scodec.meta
 
-import shapeless.HNil
-
+import shapeless._
 import scodec.bits._
 import CodecInfo.info
 import scodec.codecs._
 import CodecMetadata.meta
 import ExpressionAndSyntax.withSyntax
+import scodec.Codec
+import scodec.meta.CodecInfo.info
 
 trait CodecCombinators {
   val CodecCombinators = Seq[CodecInfo[_]](
@@ -30,11 +31,60 @@ trait CodecCombinators {
     info(uint8 flatZip { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }, "Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first.", (23, 42), (112, 0x1234)),
     info(uint8 >>~ { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }, "Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first.", (23, 42), (112, 0x1234)),
 
+    info(
+      byteAligned(bool).consume[Int](isLarge ⇒ if (isLarge) uint16 else uint8)(_ > 0xff),
+      "Decodes the left codec and then the right codec depending on the left result, then discards the left value and returns only the right",
+      255, 256, 0x1234
+    ),
+
     info(meta(uint8 :: cstring), "Concat two codecs into an HList", withSyntax(0x42 :: "zweiundvierzig" :: HNil)),
     info(meta((constant(hex"ca fe") :: cstring).dropUnits), "Remove Unit elements from an HList codec", withSyntax("dreiundzwanzig" :: HNil)),
+
+    info(
+      meta(constant(hex"ab cd ef") :~>: uint16 :: uint8),
+      "Concat two codecs discarding the Unit value of the left one",
+      withSyntax(0x1234 :: 0x23 :: HNil)
+    ),
+
+    info(
+      meta(uint8.hlist :+ uint16),
+      "Append to left HList codec the right codec.",
+      withSyntax(0x42 :: 0xcdef :: HNil)
+    ),
+
     info(
       meta((uint8 :: cstring) ::: (constant(0x23) :: uint16)),
-      "Concat two HList codecs", withSyntax(0x42 :: "zweiundvierzig" :: () :: 0xabcd :: HNil))
+      "Concat two HList codecs", withSyntax(0x42 :: "zweiundvierzig" :: () :: 0xabcd :: HNil)),
+
+    info(
+      meta(uint8 flatZipHList { case strSize ⇒ limitedSizeBytes(strSize, utf8) }),
+      "Concat to HList result of first Codec with result of Codec determined after based on value of first part",
+      withSyntax(8 :: "sausages" :: HNil)
+    ),
+
+    info(
+      meta(uint8 flatPrepend { case strSize ⇒ limitedSizeBytes(strSize, utf8) :: uint16 }),
+      "Concat to HList result of first Codec with result of HList Codec determined after based on value of first part",
+      withSyntax(8 :: "sausages" :: 0x1234 :: HNil)
+    ),
+
+    info(
+      meta(uint8 >>:~ { case strSize ⇒ limitedSizeBytes(strSize, utf8) :: uint16 }),
+      "Concat to HList result of first Codec with result of HList Codec determined after based on value of first part",
+      withSyntax(8 :: "sausages" :: 0x1234 :: HNil)
+    ),
+
+    info(
+      meta(uint8 :: uint16 flatAppend { case strSize :: _ :: HNil ⇒ limitedSizeBytes(strSize, utf8) }),
+      "Concat result of first HList Codec with result of Codec determined after based on value of first part",
+      withSyntax(8 :: 0xabcd :: "sausages" :: HNil)
+    ),
+
+    info(
+      meta(uint8 :: uint16 flatConcat { case strSize :: _ :: HNil ⇒ limitedSizeBytes(strSize, utf8) :: uint16 }),
+      "Concat result of first HList Codec with result of HList Codec determined after based on value of first part",
+      withSyntax(8 :: 0xabcd :: "sausages" :: 0x1234 :: HNil)
+    )
   )
 
   /* combinator TODO:
@@ -45,8 +95,6 @@ narrow
 widen
 
 unit
-
-consume
 
 complete
 compact
@@ -59,21 +107,9 @@ withContext
 :+:
 toField
 
-::
-:~>:
-dropUnits
-:+
-:::
-flatConcat
-flatAppend
 polyxmap
 polyxmap1
 derive
 
-::
-:~>:
-flatPrepend
->>:~
-flatZipHList
    */
 }
