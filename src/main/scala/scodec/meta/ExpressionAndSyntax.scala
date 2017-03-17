@@ -5,7 +5,7 @@ import scala.reflect.macros.blackbox
 
 case class ExpressionAndSyntax[T](value: T, syntax: String)
 object ExpressionAndSyntax {
-  implicit def fromValue[T](value: T): ExpressionAndSyntax[T] = macro exprMacro[T]
+  implicit def withSyntax[T](value: T): ExpressionAndSyntax[T] = macro exprMacro[T]
   def fromString[T](code: String): ExpressionAndSyntax[T] = macro exprFromStringMacro[T]
 
   def exprMacro[T: ctx.WeakTypeTag](ctx: blackbox.Context)(value: ctx.Expr[T]): ctx.Expr[ExpressionAndSyntax[T]] = {
@@ -30,17 +30,5 @@ object ExpressionAndSyntax {
 
     // necessary because parsed string wasn't typed yet
     retypeCheck(reify(ExpressionAndSyntax(value.splice, code.splice)))
-  }
-
-  def withSyntaxMacro[T: ctx.WeakTypeTag](ctx: blackbox.Context): ctx.Expr[ExpressionAndSyntax[T]] = {
-    import ctx.universe._
-
-    ctx.prefix.tree match {
-      case q"$qual.AddWithSyntax[..$targs]($expr)" ⇒ exprMacro[T](ctx)(ctx.Expr[T](expr))
-    }
-  }
-
-  implicit class AddWithSyntax[T](val t: T) extends AnyVal {
-    def withSyntax: ExpressionAndSyntax[T] = macro withSyntaxMacro[T]
   }
 }
