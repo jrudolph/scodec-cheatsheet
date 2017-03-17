@@ -28,7 +28,7 @@ object CodecMetadata {
       new String(pos.source.content.drop(pos.start).take(pos.end - pos.start))
     }
 
-    val elementTpe = weakTypeOf[T].dealias
+    val elementTpe = weakTypeOf[T].dealias.map(_.dealias)
 
     def simplifyType(tpe: Type): String = tpe match {
       case tq"$qual.${ TypeName(x) }" ⇒ x
