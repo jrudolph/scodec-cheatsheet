@@ -99,8 +99,10 @@ object CheatSheetGenerator extends App {
     info(codecs.utf8_32, "`UTF8` String prefixed by 32-bit 2s complement big-endian size field", "árvíztűrő ütvefúrógép"),
     info(codecs.utf8_32L, "`UTF8` String prefixed by 32-bit 2s complement little-endian size field", "árvíztűrő ütvefúrógép"),
 
-    info(codecs.uuid, "`UUID` as 2 64-bit big-endian longs", UUID.fromString("f41561aa-f759-4cde-ab07-c0c0cc0db8d8")),
+    info(codecs.uuid, "`UUID` as 2 64-bit big-endian longs", UUID.fromString("f41561aa-f759-4cde-ab07-c0c0cc0db8d8"))
+  )
 
+  val parametrized = Seq[CodecInfo[_]](
     info(codecs.constant(bin"110101"), "Constant bits", ()),
     info(codecs.constant(bin"10"), "Constant bits", ()),
 
@@ -304,23 +306,32 @@ flatPrepend
 flatZipHList
    */
 
-  def createTable(infos: Seq[CodecInfo[_]]): String = {
-    case class Column(name: String, extractor: CodecInfo[_] ⇒ String)
-    def bqColumn(name: String, extractor: CodecInfo[_] ⇒ String): Column =
-      Column(name, extractor.andThen(str ⇒ s"`$str`"))
+  case class Column(name: String, extractor: CodecInfo[_] ⇒ String)
+  def bqColumn(name: String, extractor: CodecInfo[_] ⇒ String): Column =
+    Column(name, extractor.andThen(str ⇒ s"`$str`"))
 
-    def examples(info: CodecInfo[_]): String =
-      info.exampleStrings.mkString(" </br> ")
+  def examples(info: CodecInfo[_]): String =
+    info.exampleStrings.mkString(" </br> ")
 
-    val columns = Seq(
-      bqColumn("Name", _.metadata.name),
-      bqColumn("Element Type", _.metadata.tpeString),
-      Column("Description", _.description),
-      Column("Min Bits", _.metadata.codec.sizeBound.lowerBound.toString),
-      Column("Max Bits", _.metadata.codec.sizeBound.upperBound.map(_.toString).getOrElse("∞")),
-      Column("Examples", examples)
+  object Columns {
+    val Name = bqColumn("Name", _.metadata.name)
+    val Code = bqColumn("Code example", _.metadata.syntax)
+    val ElementType = bqColumn("Element Type", _.metadata.tpeString)
+    val Description = Column("Description", _.description)
+    val MinBits = Column("Min Bits", _.metadata.codec.sizeBound.lowerBound.toString)
+    val MaxBits = Column("Max Bits", _.metadata.codec.sizeBound.upperBound.map(_.toString).getOrElse("∞"))
+    val Examples = Column("Examples", examples)
+
+    val PrimitiveColumns = Seq(
+      Name, ElementType, Description, MinBits, MaxBits, Examples
     )
 
+    val ComplexColumns = Seq(
+      Name, Code, ElementType, Description, MinBits, MaxBits, Examples
+    )
+  }
+
+  def createTable(infos: Seq[CodecInfo[_]], columns: Seq[Column]): String = {
     def formatRow(cells: Seq[String]): String = s"| ${cells.mkString(" | ")} |"
 
     val rows =
@@ -335,9 +346,13 @@ flatZipHList
 
   println("## Primitive Codecs")
   println()
-  println(createTable(primitives))
+  println(createTable(primitives, Columns.PrimitiveColumns))
+  println()
+  println("## Parametrized Codecs")
+  println()
+  println(createTable(parametrized, Columns.ComplexColumns))
   println()
   println("## Combinators")
   println()
-  println(createTable(combinators))
+  println(createTable(combinators, Columns.ComplexColumns))
 }

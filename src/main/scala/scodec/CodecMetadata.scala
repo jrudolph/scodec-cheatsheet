@@ -3,7 +3,7 @@ package scodec
 import scala.language.experimental.macros
 import scala.reflect.macros.blackbox
 
-case class CodecMetadata[T](codec: Codec[T], name: String, tpeString: String)
+case class CodecMetadata[T](codec: Codec[T], name: String, syntax: String, tpeString: String)
 object CodecMetadata {
   implicit def meta[T](codec: Codec[T]): CodecMetadata[T] = macro metadataMacro[T]
 
@@ -12,7 +12,12 @@ object CodecMetadata {
 
     val tree = codec.tree
 
-    val name = {
+    val name = tree match {
+      case q"$qual.${ name: TermName }"                             ⇒ name.decodedName.toString
+      case q"$qual.${ name: TermName }[..${ targs }](...${ args })" ⇒ name.decodedName.toString
+    }
+
+    val syntax = {
       val pos = tree.pos
       if (!pos.isRange) println(s"Does not have a rangePos $pos $tree")
 
@@ -28,7 +33,7 @@ object CodecMetadata {
     }
     val tpe: String = simplifyType(elementTpe) //.toString //typeSymbol.name.toString
 
-    reify(CodecMetadata(codec.splice, ctx.literal(name).splice, ctx.literal(tpe).splice))
+    reify(CodecMetadata(codec.splice, ctx.literal(name).splice, ctx.literal(syntax).splice, ctx.literal(tpe).splice))
   }
 }
 
