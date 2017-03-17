@@ -98,7 +98,7 @@ This list is a work-in-progress overview over the predefined codecs.
 
  * Add or edit meta information in `PrimitiveCodecs.scala`, `ParameterizedCodecs.scala`, or `CodecCombinators.scala`
  * Run `sbt "test:run-main scodec.meta.CheatSheetGenerator` to regenerate the table (the generator will replace all
-   content in this file between lines starting with "## Primitive Codecs" and "## Contributing")
+   content in this file between lines starting with `## Primitive Codecs` and `## Contributing`)
  * Commit changes + PR
 
 ## License
