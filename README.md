@@ -75,8 +75,11 @@ This list is a work-in-progress overview over the predefined codecs.
 | `pairedWith` | Concat two codecs into a 2-tuple | `uint8 pairedWith uint16 pairedWith cstring` | `((Int, Int), String)` | 24 | ∞ | `((0x12, 0x3456), "abc")` ⇔ `12 34 56 61 62 63 00₁₆` (7 bytes) |
 | `~` | Concat two codecs into a 2-tuple | `uint8 ~ uint16` | `(Int, Int)` | 24 | 24 | `(0x12, 0x3456)` ⇔ `12 34 56₁₆` (3 bytes) |
 | `~` | Concat two codecs into a 2-tuple | `uint8 ~ uint16 ~ cstring` | `((Int, Int), String)` | 24 | ∞ | `((0x12, 0x3456), "abc")` ⇔ `12 34 56 61 62 63 00₁₆` (7 bytes) |
-| `dropLeft` | Concat two codecs discarding the Unit value of the first one | `constant(0x12) dropLeft uint8` | `Int` | 16 | 16 | `0x68` ⇔ `12 68₁₆` (2 bytes) |
-| `~>` | Concat two codecs discarding the Unit value of the first one | `constant(0x12) ~> uint8` | `Int` | 16 | 16 | `0x68` ⇔ `12 68₁₆` (2 bytes) |
+| `flattenLeftPairs` | Removes left tuple nesting and converts to HList | `uint8 ~ uint16 ~ cstring flattenLeftPairs` | `Int :: Int :: String :: HNil` | 24 | ∞ | `0x12 :: 0x3456 :: "abc" :: HNil` ⇔ `12 34 56 61 62 63 00₁₆` (7 bytes) |
+| `dropLeft` | Concat two codecs discarding the Unit value of the left one | `constant(0x12) dropLeft uint8` | `Int` | 16 | 16 | `0x68` ⇔ `12 68₁₆` (2 bytes) |
+| `~>` | Concat two codecs discarding the Unit value of the left one | `constant(0x12) ~> uint8` | `Int` | 16 | 16 | `0x68` ⇔ `12 68₁₆` (2 bytes) |
+| `dropRight` | Concat two codecs discarding the Unit value of the right one | `uint8 dropRight constant(0x12)` | `Int` | 16 | 16 | `0x68` ⇔ `68 12₁₆` (2 bytes) |
+| `<~` | Concat two codecs discarding the Unit value of the right one | `uint8 <~ constant(0x12)` | `Int` | 16 | 16 | `0x68` ⇔ `68 12₁₆` (2 bytes) |
 | `flatZip` | Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first. | `uint8 flatZip { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }` | `(Int, Int)` | 8 | ∞ | `(23, 42)` ⇔ `17 2a₁₆` (2 bytes) </br> `(112, 0x1234)` ⇔ `70 12 34₁₆` (3 bytes) |
 | `>>~` | Concat two codecs into a 2-tuple where the second codec is choosen depending on the result of the first. | `uint8 >>~ { case i if i < 100 ⇒ uint8; case _ ⇒ uint16 }` | `(Int, Int)` | 8 | ∞ | `(23, 42)` ⇔ `17 2a₁₆` (2 bytes) </br> `(112, 0x1234)` ⇔ `70 12 34₁₆` (3 bytes) |
 | `::` | Concat two codecs into an HList | `uint8 :: cstring` | `Int :: String :: HNil` | 8 | ∞ | `0x42 :: "zweiundvierzig" :: HNil` ⇔ `42 7a 77 65 69 75 6e 64 76 69 65 72 7a 69 67 00₁₆` (16 bytes) |
